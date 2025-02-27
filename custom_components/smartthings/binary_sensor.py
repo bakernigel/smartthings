@@ -1,4 +1,5 @@
 """Support for binary sensors through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -14,8 +15,8 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
 
 CAPABILITY_TO_ATTRIB = {
     Capability.acceleration_sensor: Attribute.acceleration,
@@ -56,7 +57,7 @@ async def async_setup_entry(
         for capability in broker.get_assigned(device.device_id, "binary_sensor"):
             attrib = CAPABILITY_TO_ATTRIB[capability]
             sensors.append(SmartThingsBinarySensor(device, "main", attrib))
-            
+
         device_capabilities_for_binary_sensor = broker.get_assigned(
             device.device_id, "binary_sensor"
         )
@@ -79,7 +80,7 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 class SmartThingsBinarySensor(SmartThingsEntity, BinarySensorEntity):
     """Define a SmartThings Binary Sensor."""
 
-    def __init__(self, device, component, attribute):
+    def __init__(self, device, component, attribute) -> None:
         """Init the class."""
         super().__init__(device)
         self._component = component

@@ -1,4 +1,5 @@
 """Support for buttons through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections import namedtuple
@@ -7,11 +8,12 @@ from collections.abc import Sequence
 from pysmartthings.device import DeviceEntity
 
 from homeassistant.components.button import ButtonEntity
+from homeassistant.core import HomeAssistant
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
 
-Map = namedtuple(
+Map = namedtuple(  # noqa: PYI024
     "map",
     "button_command name icon device_class extra_state_attributes",
 )
@@ -51,7 +53,7 @@ CAPABILITY_TO_BUTTON = {
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entities):
     """Add switches for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
     buttons = []
@@ -122,6 +124,7 @@ class SmartThingsButton(SmartThingsEntity, ButtonEntity):
 
     @property
     def icon(self) -> str | None:
+        """Return the Icon."""
         return self._icon
 
     @property

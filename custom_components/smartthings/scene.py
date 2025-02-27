@@ -1,4 +1,5 @@
 """Support for scenes through the SmartThings cloud API."""
+
 from typing import Any
 
 from homeassistant.components.scene import Scene
@@ -22,7 +23,7 @@ async def async_setup_entry(
 class SmartThingsScene(Scene):
     """Define a SmartThings scene."""
 
-    def __init__(self, scene):
+    def __init__(self, scene) -> None:
         """Init the scene class."""
         self._scene = scene
         self._attr_name = scene.name

@@ -1,4 +1,5 @@
 """Support for covers through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -22,8 +23,8 @@ from homeassistant.const import ATTR_BATTERY_LEVEL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
 
 VALUE_TO_STATE = {
     "closed": STATE_CLOSED,
@@ -62,7 +63,8 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     # Must have one of the min_required
     if any(capability in capabilities for capability in min_required):
         # Return all capabilities supported/consumed
-        return min_required + [
+        return [
+            *min_required,
             Capability.battery,
             Capability.switch_level,
             Capability.window_shade_level,
@@ -74,7 +76,7 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 class SmartThingsCover(SmartThingsEntity, CoverEntity):
     """Define a SmartThings cover."""
 
-    def __init__(self, device):
+    def __init__(self, device) -> None:
         """Initialize the cover class."""
         super().__init__(device)
         self._current_cover_position = None

@@ -1,5 +1,4 @@
-"""
-Defines SmartThings capabilities and attributes.
+"""Defines SmartThings capabilities and attributes.
 
 https://smartthings.developer.samsung.com/docs/api-ref/capabilities.html
 """
@@ -33,7 +32,7 @@ CAPABILITIES_TO_ATTRIBUTES = {
         "completionTime",
     ],
     "doorControl": ["door"],
-    "samsungce.doorState" : ["doorState"],
+    "samsungce.doorState": ["doorState"],
     "dryerMode": ["dryerMode"],
     "dryerOperatingState": [
         "machineState",
@@ -96,11 +95,13 @@ CAPABILITIES_TO_ATTRIBUTES = {
     ],
     "samsungce.lamp": ["brightnessLevel"],
     "ovenSetpoint": ["ovenSetpoint"],
+    "samsungce.microwavePower": ["powerLevel"],
+    "samsungce.ovenMode": ["ovenMode"],
     "samsungce.meatProbe": [
         "temperatureSetpoint",
         "temperature",
         "status",
-    ],    
+    ],
     "powerConsumptionReport": ["powerConsumption"],
     "powerMeter": ["power"],
     "powerSource": ["powerSource"],
@@ -155,13 +156,13 @@ CAPABILITIES_TO_ATTRIBUTES = {
     "custom.waterFilter": [
         "waterFilterStatus",
         "waterFilterUsage",
-    ],    
+    ],
     "waterSensor": ["water"],
     "windowShade": ["windowShade"],
     "windowShadeLevel": ["shadeLevel"],
     "windowShadePreset": ["presetPosition"],
     "samsungce.waterConsumptionReport": ["waterConsumption"],
-    "samsungce.powerFreeze": ["activated"],    
+    "samsungce.powerFreeze": ["activated"],
 }
 CAPABILITIES = list(CAPABILITIES_TO_ATTRIBUTES)
 ATTRIBUTES = {
@@ -198,6 +199,7 @@ class Capability:
     dishwasher_operating_state = "dishwasherOperatingState"
     door_control = "doorControl"
     door_state = "samsungce.doorState"
+    # power_level = "samsungce.microwavePower.powerLevel"
     dryer_mode = "dryerMode"
     dryer_operating_state = "dryerOperatingState"
     dust_sensor = "dustSensor"
@@ -224,7 +226,9 @@ class Capability:
     oven_operating_state = "ovenOperatingState"
     oven_light = "samsungce.lamp"
     oven_setpoint = "ovenSetpoint"
-    oven_meat_probe= "samsungce.meatProbe"    
+    oven_meat_probe = "samsungce.meatProbe"
+    oven_microwave_power = "samsungce.microwavePower"
+    ce_oven_mode = "samsungce.ovenMode"
     power_consumption_report = "powerConsumptionReport"
     power_meter = "powerMeter"
     power_source = "powerSource"
@@ -257,14 +261,13 @@ class Capability:
     voltage_measurement = "voltageMeasurement"
     washer_mode = "washerMode"
     washer_operating_state = "washerOperatingState"
-    water_filter ="custom.waterFilter"   
+    water_filter = "custom.waterFilter"
     water_sensor = "waterSensor"
     window_shade = "windowShade"
     window_shade_level = "windowShadeLevel"
     window_shade_preset = "windowShadePreset"
     water_consumption_report = "samsungce.waterConsumptionReport"
     power_freeze = "samsungce.powerFreeze"
-
 
 
 class Attribute:
@@ -351,6 +354,7 @@ class Attribute:
     playback_status = "playbackStatus"
     power = "power"
     power_consumption = "powerConsumption"
+    power_level = "powerLevel"
     power_source = "powerSource"
     presence = "presence"
     preset_position = "presetPosition"
@@ -399,7 +403,7 @@ class Attribute:
     washer_mode = "washerMode"
     water = "water"
     water_filter_status = "waterFilterStatus"
-    water_filter_usage =  "waterFilterUsage"
+    water_filter_usage = "waterFilterUsage"
     window_shade = "windowShade"
     water_consumption = "waterConsumption"
     activated = "activated"
@@ -418,7 +422,7 @@ ATTRIBUTE_ON_VALUES = {
     Attribute.tamper: "detected",
     Attribute.valve: "open",
     Attribute.water: "wet",
-    Attribute.brightness_level: "high"
+    Attribute.brightness_level: "high",
 }
 
 ATTRIBUTE_OFF_VALUES = {
@@ -434,5 +438,5 @@ ATTRIBUTE_OFF_VALUES = {
     Attribute.tamper: "clear",
     Attribute.valve: "closed",
     Attribute.water: "dry",
-    Attribute.brightness_level: "off"
+    Attribute.brightness_level: "off",
 }

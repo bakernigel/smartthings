@@ -1,17 +1,17 @@
 """Support for lights through the SmartThings cloud API."""
-from __future__ import annotations
 
-import logging
+from __future__ import annotations
 
 import asyncio
 from collections.abc import Sequence
+import logging
 from typing import Any
 
 from pysmartthings import Capability
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
-    ATTR_COLOR_TEMP,
+    ATTR_COLOR_TEMP_KELVIN,
     ATTR_HS_COLOR,
     ATTR_TRANSITION,
     ColorMode,
@@ -24,8 +24,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 import homeassistant.util.color as color_util
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,52 +37,53 @@ async def async_setup_entry(
 ) -> None:
     """Add lights for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
-    
+
     _LOGGER.debug(
-                  "NB looking for lights",
-    )    
-        
+        "NB looking for lights",
+    )
+
     async_add_entities(
         [
-            SmartThingsLight(device,"main", "brightnessLevel")
+            SmartThingsLight(device, "main", "brightnessLevel")
             for device in broker.devices.values()
             if broker.any_assigned(device.device_id, "light")
         ],
         True,
     )
-    
+
     lights = []
-    for device in broker.devices.values():              
+    for device in broker.devices.values():
         for component in device.components:
             if "light" in device.components[component]:
                 lights.append(SmartThingsLight(device, component, "brightnessLevel"))
-                
+
             capability = device.components[component]
-            
+
             _LOGGER.debug(
-                  "NB light capability : %s ",
-                  capability,
+                "NB light capability : %s ",
+                capability,
             )
-                               
+
     async_add_entities(lights)
+
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     """Return all capabilities supported if minimum required are present."""
-    
+
     # Called from __init__.py class DeviceBroker
-    
+
     supported = [
         Capability.switch,
         Capability.switch_level,
         Capability.color_control,
         Capability.color_temperature,
     ]
-    
+
     _LOGGER.debug(
-                  "NB light get_capabilities: %s ",
-                   capabilities,
-    )  
-    
+        "NB light get_capabilities: %s ",
+        capabilities,
+    )
+
     # Must be able to be turned on/off.
     # if Capability.switch not in capabilities:
     #    return None
@@ -110,27 +111,27 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
     # SmartThings does not expose this attribute, instead it's
     # implemented within each device-type handler.  This value is the
     # lowest kelvin found supported across 20+ handlers.
-    _attr_max_mireds = 500  # 2000K
+    _attr_min_color_temp_kelvin = 2000  # 500 mireds
 
     # SmartThings does not expose this attribute, instead it's
     # implemented within each device-type handler.  This value is the
     # highest kelvin found supported across 20+ handlers.
-    _attr_min_mireds = 111  # 9000K
+    _attr_max_color_temp_kelvin = 9000  # 111 mireds
 
-    def __init__(self, device, component, attribute):
+    def __init__(self, device, component, attribute) -> None:
         """Initialize a SmartThingsLight."""
         super().__init__(device)
         self._attr_supported_color_modes = self._determine_color_modes()
         self._attr_supported_features = self._determine_features()
         self._component = component
         self._attribute = attribute
-        
+
         if self._component == "main":
             self._attr_name = f"{device.label}"
             self._attr_unique_id = f"{device.device_id}.{attribute}"
         else:
             self._attr_name = f"{device.label} {component}"
-            self._attr_unique_id = f"{device.device_id}.{component}.{attribute}"        
+            self._attr_unique_id = f"{device.device_id}.{component}.{attribute}"
 
     def _determine_color_modes(self):
         """Get features supported by the device."""
@@ -162,8 +163,8 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
         """Turn the light on."""
         tasks = []
         # Color temperature
-        if ATTR_COLOR_TEMP in kwargs:
-            tasks.append(self.async_set_color_temp(kwargs[ATTR_COLOR_TEMP]))
+        if ATTR_COLOR_TEMP_KELVIN in kwargs:
+            tasks.append(self.async_set_color_temp(kwargs[ATTR_COLOR_TEMP_KELVIN]))
         # Color
         if ATTR_HS_COLOR in kwargs:
             tasks.append(self.async_set_color(kwargs[ATTR_HS_COLOR]))
@@ -189,17 +190,15 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
         if ATTR_TRANSITION in kwargs:
             await self.async_set_level(0, int(kwargs[ATTR_TRANSITION]))
         else:
-            await self._device.switch_off(set_status=True,component_id=self._component)
-            
-        #async def switch_off(
+            await self._device.switch_off(set_status=True, component_id=self._component)
+
+        # async def switch_off(
         # self, set_status: bool = False, *, component_id: str = "main"
-        # ) -> bool:    
+        # ) -> bool:
 
         # State is set optimistically in the commands above, therefore update
         # the entity state ahead of receiving the confirming push updates
         self.async_schedule_update_ha_state(True)
-        
-        
 
     async def async_update(self) -> None:
         """Update entity attributes when the device status has changed."""
@@ -227,10 +226,9 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
         saturation = max(min(float(hs_color[1]), 100.0), 0.0)
         await self._device.set_color(hue, saturation, set_status=True)
 
-    async def async_set_color_temp(self, value: float):
+    async def async_set_color_temp(self, value: int):
         """Set the color temperature of the device."""
-        kelvin = color_util.color_temperature_mired_to_kelvin(value)
-        kelvin = max(min(kelvin, 30000), 1)
+        kelvin = max(min(value, 30000), 1)
         await self._device.set_color_temperature(kelvin, set_status=True)
 
     async def async_set_level(self, brightness: int, transition: int):
@@ -259,7 +257,7 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
     # def is_on(self) -> bool:
     #    """Return true if light is on."""
     #    return self._device.status.switch
-        
+
     @property
     def is_on(self) -> bool:
         """Return true if switch is on."""
@@ -269,17 +267,21 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
             .value
         )
         _LOGGER.debug(
-                  "NB light is_on: component = %s status: %s : %s: %s",
-                   self._component,
-                   self._device.status.switch,
-                   self._device.status.components[self._component].switch,
-                   value,
-        ) 
-         
+            "NB light is_on: component = %s status: %s : %s: %s",
+            self._component,
+            self._device.status.switch,
+            self._device.status.components[self._component].switch,
+            value,
+        )
+
         if self._component == "main":
             return self._device.status.switch
-            
-        if self._device.status.components[self._component].attributes[self._attribute].value == "high":    
+
+        if (
+            self._device.status.components[self._component]
+            .attributes[self._attribute]
+            .value
+            == "high"
+        ):
             return True
-        else:
-            return False        
+        return False

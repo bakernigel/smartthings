@@ -1,4 +1,5 @@
 """Support for fans through the SmartThings cloud API."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -17,8 +18,8 @@ from homeassistant.util.percentage import (
 )
 from homeassistant.util.scaling import int_states_in_range
 
-from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
 
 SPEED_RANGE = (1, 3)  # off is not included
 
@@ -60,7 +61,7 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 
     for capability in optional:
         if capability in capabilities:
-            supported.append(capability)
+            supported.append(capability)  # noqa: PERF401
 
     return supported
 
@@ -70,7 +71,7 @@ class SmartThingsFan(SmartThingsEntity, FanEntity):
 
     _attr_speed_count = int_states_in_range(SPEED_RANGE)
 
-    def __init__(self, device):
+    def __init__(self, device) -> None:
         """Init the class."""
         super().__init__(device)
         self._attr_supported_features = self._determine_features()
