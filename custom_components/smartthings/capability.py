@@ -161,7 +161,8 @@ CAPABILITIES_TO_ATTRIBUTES = {
     "windowShadeLevel": ["shadeLevel"],
     "windowShadePreset": ["presetPosition"],
     "samsungce.waterConsumptionReport": ["waterConsumption"],
-    "samsungce.powerFreeze": ["activated"],    
+    "samsungce.powerFreeze": ["activated"],
+    "samsungce.hoodFanSpeed": ["hoodFanSpeed", "settableMaxFanSpeed", "settableMinFanSpeed", "supportedHoodFanSpeed"],
 }
 CAPABILITIES = list(CAPABILITIES_TO_ATTRIBUTES)
 ATTRIBUTES = {
