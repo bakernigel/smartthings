@@ -19,6 +19,7 @@ from homeassistant.util.scaling import int_states_in_range
 
 from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+from .capability import Attribute, Capability
 
 SPEED_RANGE = (1, 3)  # off is not included
 
@@ -50,6 +51,7 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     optional = [
         Capability.air_conditioner_fan_mode,
         Capability.fan_speed,
+        Capability.hood_fan_speed,
     ]
 
     # If none of the optional capabilities are supported then error
@@ -68,17 +70,22 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 class SmartThingsFan(SmartThingsEntity, FanEntity):
     """Define a SmartThings Fan."""
 
-    _attr_speed_count = int_states_in_range(SPEED_RANGE)
-
     def __init__(self, device):
         """Init the class."""
         super().__init__(device)
+        if self._device.get_capability(Capability.hood_fan_speed):
+            self._attr_speed_count = self._device.status.settable_max_fan_speed + 1
+        else:
+            self._attr_speed_count = int_states_in_range(SPEED_RANGE)
         self._attr_supported_features = self._determine_features()
 
     def _determine_features(self):
         flags = FanEntityFeature(0)
 
-        if self._device.get_capability(Capability.fan_speed):
+        if (
+            self._device.get_capability(Capability.fan_speed)
+            or self._device.get_capability(Capability.hood_fan_speed)
+        ):
             flags |= FanEntityFeature.SET_SPEED
         if self._device.get_capability(Capability.air_conditioner_fan_mode):
             flags |= FanEntityFeature.PRESET_MODE
@@ -95,8 +102,19 @@ class SmartThingsFan(SmartThingsEntity, FanEntity):
         elif percentage == 0:
             await self._device.switch_off(set_status=True)
         else:
-            value = math.ceil(percentage_to_ranged_value(SPEED_RANGE, percentage))
-            await self._device.set_fan_speed(value, set_status=True)
+            if self._device.get_capability(Capability.hood_fan_speed):
+                max_speed = self._device.status.settable_max_fan_speed
+                value = math.ceil(percentage_to_ranged_value((0, max_speed), percentage))
+                await self._device.command(
+                    component_id="main",
+                    capability=Capability.hood_fan_speed,
+                    command="setHoodFan",
+                    arguments=[value],
+                    set_status=True,
+                )
+            else:
+                value = math.ceil(percentage_to_ranged_value(SPEED_RANGE, percentage))
+                await self._device.set_fan_speed(value, set_status=True)
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
@@ -138,6 +156,11 @@ class SmartThingsFan(SmartThingsEntity, FanEntity):
     @property
     def percentage(self) -> int | None:
         """Return the current speed percentage."""
+        if self._device.get_capability(Capability.hood_fan_speed):
+            max_speed = self._device.status.settable_max_fan_speed
+            return ranged_value_to_percentage(
+                (0, max_speed), self._device.status.hood_fan_speed
+            )
         return ranged_value_to_percentage(SPEED_RANGE, self._device.status.fan_speed)
 
     @property
