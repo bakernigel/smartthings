@@ -265,8 +265,7 @@ class Capability:
     window_shade_preset = "windowShadePreset"
     water_consumption_report = "samsungce.waterConsumptionReport"
     power_freeze = "samsungce.powerFreeze"
-
-
+    hood_fan_speed = "samsungce.hoodFanSpeed"
 
 class Attribute:
     """Define common attributes."""
