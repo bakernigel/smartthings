@@ -86,6 +86,7 @@ CAPABILITIES_TO_ATTRIBUTES = {
     ],
     "odorSensor": ["odorLevel"],
     "ovenMode": ["ovenMode"],
+    "samsungce.ovenMode": ["ovenMode"],
     "ovenOperatingState": [
         "machineState",
         "supportedMachineStates",
@@ -221,7 +222,7 @@ class Capability:
     motion_sensor = "motionSensor"
     ocf = "ocf"
     odor_sensor = "odorSensor"
-    oven_mode = "ovenMode"
+    oven_mode = "samsungce.ovenMode"
     oven_operating_state = "ovenOperatingState"
     oven_light = "samsungce.lamp"
     oven_setpoint = "ovenSetpoint"
