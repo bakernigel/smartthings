@@ -32,6 +32,9 @@ CAPABILITIES_TO_ATTRIBUTES = {
         "dishwasherJobState",
         "completionTime",
     ],
+    "samsungce.dishwasherWashingCourse": [
+        "washingCourse"
+    ],    
     "doorControl": ["door"],
     "samsungce.doorState" : ["doorState"],
     "dryerMode": ["dryerMode"],
@@ -267,6 +270,7 @@ class Capability:
     water_consumption_report = "samsungce.waterConsumptionReport"
     power_freeze = "samsungce.powerFreeze"
     hood_fan_speed = "samsungce.hoodFanSpeed"
+    dishwasher_washing_course = "samsungce.dishwasherWashingCourse"
 
 class Attribute:
     """Define common attributes."""
@@ -404,6 +408,7 @@ class Attribute:
     window_shade = "windowShade"
     water_consumption = "waterConsumption"
     activated = "activated"
+    washing_course = "washingCourse"
 
 
 ATTRIBUTE_ON_VALUES = {

@@ -590,7 +590,17 @@ CAPABILITY_TO_SENSORS: dict[str, list[Map]] = {
             None,
             None,
         )
-    ],                            
+    ], 
+    Capability.dishwasher_washing_course: [
+        Map(
+            Attribute.washing_course,
+            "Dishwasher Course Selected",
+            None,
+            None,
+            None,
+            None,
+        )
+    ],                                                       
 }
 
 
