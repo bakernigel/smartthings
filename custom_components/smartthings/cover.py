@@ -9,13 +9,10 @@ from pysmartthings import Attribute, Capability
 from homeassistant.components.cover import (
     ATTR_POSITION,
     DOMAIN as COVER_DOMAIN,
-    STATE_CLOSED,
-    STATE_CLOSING,
-    STATE_OPEN,
-    STATE_OPENING,
     CoverDeviceClass,
     CoverEntity,
     CoverEntityFeature,
+    CoverState,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_BATTERY_LEVEL
@@ -26,11 +23,11 @@ from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
 
 VALUE_TO_STATE = {
-    "closed": STATE_CLOSED,
-    "closing": STATE_CLOSING,
-    "open": STATE_OPEN,
-    "opening": STATE_OPENING,
-    "partially open": STATE_OPEN,
+    "closed": CoverState.CLOSED,
+    "closing": CoverState.CLOSING,
+    "open": CoverState.OPEN,
+    "opening": CoverState.OPENING,
+    "partially open": CoverState.OPEN,
     "unknown": None,
 }
 
