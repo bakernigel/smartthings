@@ -22,7 +22,6 @@ from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
 
 from homeassistant.const import (
-    AREA_SQUARE_METERS,
     CONCENTRATION_PARTS_PER_MILLION,
     LIGHT_LUX,
     PERCENTAGE,
@@ -33,6 +32,7 @@ from homeassistant.const import (
     UnitOfPower,
     UnitOfTemperature,
     UnitOfVolume,
+    UnitOfArea,
 )
 
 UNITS = {
